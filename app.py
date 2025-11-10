@@ -6,6 +6,7 @@ import streamlit as st
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import streamlit as st
+import os
 
 # ================== 基础配置 ==================
 API_KEY = st.secrets["API_KEY"]
@@ -82,13 +83,20 @@ DEFAULT_WEAPONS = [
 ]
 
 # ================== 字体 ==================
-font_path = r"C:\Windows\Fonts\msyh.ttc"
-try:
-    font_manager.fontManager.addfont(font_path)
-    plt.rcParams["font.family"] = "Microsoft YaHei"
-except Exception:
-    plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["axes.unicode_minus"] = False
+
+# 先用一个通用的中文字体名称，云端也能识别
+plt.rcParams["font.sans-serif"] = ["SimHei"]   # 通用中文黑体
+plt.rcParams["axes.unicode_minus"] = False     # 解决负号显示问题
+
+# 如果是在本地 Windows，并且有微软雅黑，就用本地更好看的字体
+win_font_path = r"C:\Windows\Fonts\msyh.ttc"
+if os.path.exists(win_font_path):
+    try:
+        font_manager.fontManager.addfont(win_font_path)
+        plt.rcParams["font.family"] = "Microsoft YaHei"
+    except Exception:
+        # 如果加载失败，就用上面的 SimHei
+        pass
 
 # ================== 页面 ==================
 st.set_page_config(page_title="CS2 变革/反冲炼金收益展示", layout="wide")
@@ -326,4 +334,5 @@ st.dataframe(
         for w in st.session_state.weapons
     ]
 )
+
 
