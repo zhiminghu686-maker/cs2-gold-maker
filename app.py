@@ -82,7 +82,7 @@ DEFAULT_WEAPONS = [
 ]
 
 # ================== 字体 ==================
-ont_path = Path(__file__).parent / "NotoSansCJK-wght-400-900.ttf"
+font_path = Path(__file__).parent / "NotoSansCJK-wght-400-900.ttf"
 
 if font_path.exists():
     font_manager.fontManager.addfont(str(font_path))
@@ -333,6 +333,7 @@ st.dataframe(
         for w in st.session_state.weapons
     ]
 )
+
 
 
 
