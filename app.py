@@ -7,6 +7,30 @@ from matplotlib import font_manager
 import matplotlib.pyplot as plt
 import os
 
+# ================== 字体 ==================
+# 1. 找你下载的字体（名字要和你上传的一样）
+font_path = Path(__file__).parent / "NotoSansCJKsc-Regular.otf"
+
+if font_path.exists():
+    # 2. 注册字体
+    font_manager.fontManager.addfont(str(font_path))
+    # 3. 动态获取这个字体真正的名字，避免写错
+    font_prop = font_manager.FontProperties(fname=str(font_path))
+    font_name = font_prop.get_name()
+    # 4. 告诉 matplotlib 用这个
+    plt.rcParams["font.family"] = font_name
+else:
+    # 本地兜底
+    win_font_path = r"C:\Windows\Fonts\msyh.ttc"
+    if os.path.exists(win_font_path):
+        font_manager.fontManager.addfont(win_font_path)
+        plt.rcParams["font.family"] = "Microsoft YaHei"
+    else:
+        plt.rcParams["font.sans-serif"] = ["SimHei"]
+
+# 负号不变方块
+plt.rcParams["axes.unicode_minus"] = False
+
 # ================== 基础配置 ==================
 API_KEY = st.secrets["API_KEY"]
 PRICE_URL = "https://open.steamdt.com/open/cs2/v1/price/single"
@@ -102,29 +126,9 @@ GLOVE_TIER = {
     "战痕累累 (BS)": (0.45, 0.80),
 }
 
-# ================== 字体 ==================
-# 1. 找你下载的字体（名字要和你上传的一样）
-font_path = Path(__file__).parent / "NotoSansCJKsc-Regular.otf"
-
-if font_path.exists():
-    # 2. 注册字体
-    font_manager.fontManager.addfont(str(font_path))
-    # 3. 动态获取这个字体真正的名字，避免写错
-    font_prop = font_manager.FontProperties(fname=str(font_path))
-    font_name = font_prop.get_name()
-    # 4. 告诉 matplotlib 用这个
-    plt.rcParams["font.family"] = font_name
-else:
-    # 本地兜底
-    win_font_path = r"C:\Windows\Fonts\msyh.ttc"
-    if os.path.exists(win_font_path):
-        font_manager.fontManager.addfont(win_font_path)
-        plt.rcParams["font.family"] = "Microsoft YaHei"
-    else:
-        plt.rcParams["font.sans-serif"] = ["SimHei"]
-
-# 负号不变方块
-plt.rcParams["axes.unicode_minus"] = False
+# ================== 页面 ==================
+st.set_page_config(page_title="CS2 变革/反冲炼金收益展示", layout="wide")
+st.title("🎮 CS2 变革/反冲炼金收益展示")
 
 # ================== 文件读写 ==================
 def load_data():
@@ -401,5 +405,6 @@ st.dataframe(
         for w in st.session_state.weapons
     ]
 )
+
 
 
