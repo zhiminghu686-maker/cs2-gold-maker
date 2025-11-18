@@ -1,24 +1,40 @@
 import json
-from pathlib import Path
-import matplotlib.pyplot as plt
-from matplotlib import font_manager
 import streamlit as st
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+from matplotlib import font_manager
+import matplotlib.pyplot as plt
+import os
 
 # ================== 字体 ==================
-font_path = r"C:\Windows\Fonts\msyh.ttc"
-try:
-    font_manager.fontManager.addfont(font_path)
-    plt.rcParams["font.family"] = "Microsoft YaHei"
-except Exception:
-    plt.rcParams["font.family"] = "sans-serif"
+# 1. 找你下载的字体（名字要和你上传的一样）
+font_path = Path(__file__).parent / "NotoSansCJKsc-Regular.otf"
+
+if font_path.exists():
+    # 2. 注册字体
+    font_manager.fontManager.addfont(str(font_path))
+    # 3. 动态获取这个字体真正的名字，避免写错
+    font_prop = font_manager.FontProperties(fname=str(font_path))
+    font_name = font_prop.get_name()
+    # 4. 告诉 matplotlib 用这个
+    plt.rcParams["font.family"] = font_name
+else:
+    # 本地兜底
+    win_font_path = r"C:\Windows\Fonts\msyh.ttc"
+    if os.path.exists(win_font_path):
+        font_manager.fontManager.addfont(win_font_path)
+        plt.rcParams["font.family"] = "Microsoft YaHei"
+    else:
+        plt.rcParams["font.sans-serif"] = ["SimHei"]
+
+# 负号不变方块
 plt.rcParams["axes.unicode_minus"] = False
 
 # ================== 基础配置 ==================
-API_KEY = "02f6106b429a433480950a016b914563"
+API_KEY = st.secrets["API_KEY"]
 PRICE_URL = "https://open.steamdt.com/open/cs2/v1/price/single"
-DATA_FILE = Path("knives.json")
+DATA_FILE = Path("gloves.json")
 
 # ================== 名称映射（刀 + 红皮） ==================
 STEAMDT_NAME_MAP = {
@@ -320,14 +336,6 @@ def render():
         key="night_knife_tier_choice"
     )
 
-    knife_val = st.sidebar.number_input(
-        "刀最低价（手动）",
-        0.0, 99999.0,
-        float(cur_knife["min_price"]),
-        1.0,
-        key="night_knife_input"
-    )
-
     col1, col2 = st.sidebar.columns(2)
     btn_k1 = col1.button("🔪 刷新当前刀", key="night_btn_knife_one")
     btn_k2 = col2.button("🔁 刷新全部刀", key="night_btn_knife_all")
@@ -348,8 +356,6 @@ def render():
         with st.spinner("⚙️ 正在刷新所有刀..."):
             n = update_all(knives, knife_tier_choice)
         st.sidebar.success(f"✅ 已刷新 {n} 把刀")
-    else:
-        cur_knife["min_price"] = knife_val
 
     st.sidebar.markdown(f"当前刀价：**{cur_knife['min_price']:.2f}** 元")
 
@@ -372,14 +378,6 @@ def render():
         key="night_weapon_tier_choice"
     )
 
-    weapon_val = st.sidebar.number_input(
-        "枪最低价（手动）",
-        0.0, 99999.0,
-        float(cur_weapon["min_price"]),
-        1.0,
-        key="night_weapon_input"
-    )
-
     col3, col4 = st.sidebar.columns(2)
     btn_w1 = col3.button("🔫 刷新当前枪", key="night_btn_weapon_one")
     btn_w2 = col4.button("💥 刷新全部枪", key="night_btn_weapon_all")
@@ -400,8 +398,6 @@ def render():
         with st.spinner("⚙️ 正在刷新所有枪..."):
             n = update_all(weapons, weapon_tier_choice)
         st.sidebar.success(f"✅ 已刷新 {n} 把枪")
-    else:
-        cur_weapon["min_price"] = weapon_val
 
     st.sidebar.markdown(f"当前枪价：**{cur_weapon['min_price']:.2f}** 元")
 
@@ -531,3 +527,4 @@ def render():
         [{"枪": w["name"], "最低价": w["min_price"]} for w in weapons],
         use_container_width=True,
     )
+
