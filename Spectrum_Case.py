@@ -34,7 +34,7 @@ plt.rcParams["axes.unicode_minus"] = False
 # ================== 基础配置 ==================
 API_KEY = st.secrets["API_KEY"]
 PRICE_URL = "https://open.steamdt.com/open/cs2/v1/price/single"
-DATA_FILE = Path("gloves.json")
+DATA_FILE = Path("gloves2.json")
 
 # ================== 名称映射（刀 + 红皮） ==================
 STEAMDT_NAME_MAP = {
@@ -546,4 +546,5 @@ def render():
         [{"枪": w["name"], "最低价": w["min_price"]} for w in weapons],
         use_container_width=True,
     )
+
 
